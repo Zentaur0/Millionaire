@@ -27,7 +27,19 @@ final class GameVC: UIViewController {
     private let resultLabel = UILabel()
     private let rightAnswersLabel = UILabel()
     private let tipsStackView = UIStackView()
-    private let questions: [Question] = QuestionsStorage.questions.shuffled()
+    private let questions: [Question]
+    
+    // MARK: - Init
+    
+    init(questions: [Question]) {
+        self.questions = questions
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    @available (*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - Life Cycle
     
@@ -48,7 +60,7 @@ extension GameVC: ViewControllerMethods {
         gameSession?.delegate = self
         
         navigationController?.navigationBar.isHidden = false
-        title = "Game"
+        title = "Игра"
         view.backgroundColor = .white
         
         view.addSubview(questionLabel)

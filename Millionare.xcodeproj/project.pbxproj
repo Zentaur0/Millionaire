@@ -23,6 +23,10 @@
 		230CDCE9272D9B9800F78C79 /* ResultsVC.swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 230CDCE8272D9B9800F78C79 /* ResultsVC.swift.swift */; };
 		2354C8DF272DCABD007B6BE0 /* ResultCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2354C8DE272DCABD007B6BE0 /* ResultCell.swift */; };
 		2354C8E1272DCE43007B6BE0 /* GameCaretaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2354C8E0272DCE43007B6BE0 /* GameCaretaker.swift */; };
+		23907706272EB6F200369C4E /* QuestionStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23907705272EB6F100369C4E /* QuestionStrategy.swift */; };
+		23907708272EBFDB00369C4E /* GameSettingsVC.swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23907707272EBFDB00369C4E /* GameSettingsVC.swift.swift */; };
+		2390770A272ED0BA00369C4E /* AddQuestionVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23907709272ED0BA00369C4E /* AddQuestionVC.swift */; };
+		23F0C32D2733F4690099DC87 /* UserQuestionsCaretaker.swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F0C32C2733F4690099DC87 /* UserQuestionsCaretaker.swift.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +47,10 @@
 		230CDCE8272D9B9800F78C79 /* ResultsVC.swift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsVC.swift.swift; sourceTree = "<group>"; };
 		2354C8DE272DCABD007B6BE0 /* ResultCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultCell.swift; sourceTree = "<group>"; };
 		2354C8E0272DCE43007B6BE0 /* GameCaretaker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameCaretaker.swift; sourceTree = "<group>"; };
+		23907705272EB6F100369C4E /* QuestionStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionStrategy.swift; sourceTree = "<group>"; };
+		23907707272EBFDB00369C4E /* GameSettingsVC.swift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSettingsVC.swift.swift; sourceTree = "<group>"; };
+		23907709272ED0BA00369C4E /* AddQuestionVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddQuestionVC.swift; sourceTree = "<group>"; };
+		23F0C32C2733F4690099DC87 /* UserQuestionsCaretaker.swift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserQuestionsCaretaker.swift.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,6 +93,7 @@
 		230CDCBF272D51EC00F78C79 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				23907704272EB6A800369C4E /* Strategy */,
 				230CDCC7272D55A100F78C79 /* Storyboards */,
 				230CDCEA272DCA7400F78C79 /* Views */,
 				230CDCDE272D868100F78C79 /* Core */,
@@ -129,6 +138,8 @@
 				230CDCAC272D502A00F78C79 /* StartVC.swift */,
 				230CDCD7272D63AA00F78C79 /* GameVC.swift */,
 				230CDCE8272D9B9800F78C79 /* ResultsVC.swift.swift */,
+				23907707272EBFDB00369C4E /* GameSettingsVC.swift.swift */,
+				23907709272ED0BA00369C4E /* AddQuestionVC.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -156,6 +167,7 @@
 				230CDCE2272D86A300F78C79 /* GameSession.swift */,
 				2354C8E0272DCE43007B6BE0 /* GameCaretaker.swift */,
 				230CDCE4272D99A100F78C79 /* QuestionsStorage.swift */,
+				23F0C32C2733F4690099DC87 /* UserQuestionsCaretaker.swift.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -166,6 +178,14 @@
 				2354C8DE272DCABD007B6BE0 /* ResultCell.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		23907704272EB6A800369C4E /* Strategy */ = {
+			isa = PBXGroup;
+			children = (
+				23907705272EB6F100369C4E /* QuestionStrategy.swift */,
+			);
+			path = Strategy;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -245,14 +265,18 @@
 			buildActionMask = 2147483647;
 			files = (
 				230CDCAD272D502A00F78C79 /* StartVC.swift in Sources */,
+				23907708272EBFDB00369C4E /* GameSettingsVC.swift.swift in Sources */,
 				230CDCE5272D99A100F78C79 /* QuestionsStorage.swift in Sources */,
 				2354C8DF272DCABD007B6BE0 /* ResultCell.swift in Sources */,
 				2354C8E1272DCE43007B6BE0 /* GameCaretaker.swift in Sources */,
 				230CDCC5272D527A00F78C79 /* Question.swift in Sources */,
 				230CDCCA272D564B00F78C79 /* ViewControllerMethods.swift in Sources */,
 				230CDCA9272D502A00F78C79 /* AppDelegate.swift in Sources */,
+				2390770A272ED0BA00369C4E /* AddQuestionVC.swift in Sources */,
+				23F0C32D2733F4690099DC87 /* UserQuestionsCaretaker.swift.swift in Sources */,
 				230CDCD8272D63AA00F78C79 /* GameVC.swift in Sources */,
 				230CDCE7272D9B6C00F78C79 /* Result.swift in Sources */,
+				23907706272EB6F200369C4E /* QuestionStrategy.swift in Sources */,
 				230CDCE9272D9B9800F78C79 /* ResultsVC.swift.swift in Sources */,
 				230CDCAB272D502A00F78C79 /* SceneDelegate.swift in Sources */,
 				230CDCE3272D86A300F78C79 /* GameSession.swift in Sources */,
