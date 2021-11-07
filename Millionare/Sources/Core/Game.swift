@@ -31,7 +31,7 @@ class Game {
     
     func saveResults() {
         let result = Result(
-            rightAnswers: session?.rightAnswersCount ?? 0,
+            rightAnswers: session?.rightAnswersCount.value ?? 0,
             moneyWon: session?.moneyWon ?? 0,
             tipsUsed: session?.tipsLeft ?? 0
         )

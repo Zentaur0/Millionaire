@@ -136,8 +136,8 @@ final class LevelCell: UITableViewCell {
     }
     
     @objc private func switchControlAction() {
-        let userQuestionsCaretaker = UserQuestionsCaretaker()
-        let userQuestions = userQuestionsCaretaker.loadQuestion()
+        let userQuestionsBuilder = UserQuestionBuilder()
+        let userQuestions = userQuestionsBuilder.loadQuestion()
         
         let storage = QuestionsStorage.questions + userQuestions
         let session = GameSession()

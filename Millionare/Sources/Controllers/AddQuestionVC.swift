@@ -8,30 +8,36 @@
 import UIKit
 import SnapKit
 
+// MARK: - NewQuestionCellType
+
+private enum NewQuestionCellType: Int {
+    case textFieldType
+    case segmentedControlType
+}
+
 // MARK: - AddQuestionVC
 
 final class AddQuestionVC: UIViewController {
     
     // MARK: - Properties
     
-    private let newQuestionLabel = UILabel()
-    private let firstAnswerLabel = UILabel()
-    private let secondAnswerLabel = UILabel()
-    private let thirdAnswerLabel = UILabel()
-    private let fourthAnswerLabel = UILabel()
-    private let rightAnswerLabel = UILabel()
+    private let tableView = UITableView()
+    private let addNewFieldButton = UIButton(type: .system)
+    private let userQuestionsBuilder = UserQuestionBuilder()
+    private var numberOfRows = 1
+    private var numberOfSections = 1
+    private let titles = [
+        ["Новый вопрос:",
+        "Ответ №1:",
+        "Ответ №2:",
+        "Ответ №3:",
+        "Ответ №4:"],
+        ["Правильный ответ:"]
+    ]
     
-    private let newQuestionTextField = UITextField()
-    private let firstAnswerTextField = UITextField()
-    private let secondAnswerTextField = UITextField()
-    private let thirdAnswerTextField = UITextField()
-    private let fourthAnswerTextField = UITextField()
-    
-    private let rightAnswerControl = UISegmentedControl(items: ["1", "2", "3", "4"])
-    
-    private let scrollView = UIScrollView()
-    private let contentView = UIView()
-    private let containerView = UIStackView()
+    private var textFieldsTexts = [String]()
+    private var isTextFieldIsEmpty = true
+    private var selectedSegmentIndex = 0
     
     // MARK: - Life Cycle
     
@@ -39,13 +45,6 @@ final class AddQuestionVC: UIViewController {
         super.viewDidLoad()
         setupVC()
         setupConstraints()
-        setupKeyboardObservers()
-    }
-    
-    // MARK: - Deinit
-    
-    deinit {
-        removeKeyboardObservers()
     }
     
 }
@@ -58,83 +57,42 @@ extension AddQuestionVC: ViewControllerMethods {
         navigationController?.navigationBar.isHidden = false
         view.backgroundColor = .white
         
-        scrollView.keyboardDismissMode = .onDrag
+        view.addSubview(tableView)
+        tableView.keyboardDismissMode = .onDrag
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(UserQuestionCell.self,
+                           forCellReuseIdentifier: UserQuestionCell.reuseIdentifier)
+        tableView.register(UserQuestionSegmentedCell.self,
+                           forCellReuseIdentifier: UserQuestionSegmentedCell.reuseIdentifier)
+        tableView.tableFooterView = UIView()
+        tableView.separatorColor = .clear
         
-        view.addSubview(scrollView)
-        scrollView.addSubview(contentView)
-        contentView.addSubview(containerView)
-        
-        containerView.addArrangedSubview(newQuestionLabel)
-        containerView.addArrangedSubview(newQuestionTextField)
-        containerView.addArrangedSubview(firstAnswerLabel)
-        containerView.addArrangedSubview(firstAnswerTextField)
-        containerView.addArrangedSubview(secondAnswerLabel)
-        containerView.addArrangedSubview(secondAnswerTextField)
-        containerView.addArrangedSubview(thirdAnswerLabel)
-        containerView.addArrangedSubview(thirdAnswerTextField)
-        containerView.addArrangedSubview(fourthAnswerLabel)
-        containerView.addArrangedSubview(fourthAnswerTextField)
-        containerView.addArrangedSubview(rightAnswerLabel)
-        containerView.addArrangedSubview(rightAnswerControl)
-        
-        containerView.spacing = 5
-        containerView.axis = .vertical
-        containerView.distribution = .fillEqually
-        
-        newQuestionLabel.text = "Новый вопрос:"
-        firstAnswerLabel.text = "Ответ №1:"
-        secondAnswerLabel.text = "Ответ №2:"
-        thirdAnswerLabel.text = "Ответ №3:"
-        fourthAnswerLabel.text = "Ответ №4:"
-        rightAnswerLabel.text = "Правильный ответ:"
-        
-        newQuestionTextField.layer.cornerRadius = 5
-        newQuestionTextField.layer.borderColor = UIColor.systemGray2.cgColor
-        newQuestionTextField.layer.borderWidth = 0.5
-        
-        firstAnswerTextField.layer.cornerRadius = 5
-        firstAnswerTextField.layer.borderColor = UIColor.systemGray2.cgColor
-        firstAnswerTextField.layer.borderWidth = 0.5
-        
-        secondAnswerTextField.layer.cornerRadius = 5
-        secondAnswerTextField.layer.borderColor = UIColor.systemGray2.cgColor
-        secondAnswerTextField.layer.borderWidth = 0.5
-        
-        thirdAnswerTextField.layer.cornerRadius = 5
-        thirdAnswerTextField.layer.borderColor = UIColor.systemGray2.cgColor
-        thirdAnswerTextField.layer.borderWidth = 0.5
-        
-        fourthAnswerTextField.layer.cornerRadius = 5
-        fourthAnswerTextField.layer.borderColor = UIColor.systemGray2.cgColor
-        fourthAnswerTextField.layer.borderWidth = 0.5
-        
-        
+        view.addSubview(addNewFieldButton)
+        addNewFieldButton.backgroundColor = .systemYellow
+        addNewFieldButton.layer.cornerRadius = 8
+        addNewFieldButton.layer.borderWidth = 0.5
+        addNewFieldButton.layer.borderColor = UIColor.lightGray.cgColor
+        addNewFieldButton.setTitle("Сохранить", for: .normal)
+        addNewFieldButton.addTarget(self, action: #selector(addNewFieldAction), for: .touchUpInside)
         
         let saveButton = UIBarButtonItem(barButtonSystemItem: .add,
                                          target: self,
                                          action: #selector(saveAction))
-        
         navigationItem.rightBarButtonItem = saveButton
     }
     
     func setupConstraints() {
-        scrollView.snp.makeConstraints {
-            $0.edges.equalTo(view.safeAreaLayoutGuide)
+        tableView.snp.makeConstraints {
+            $0.top.leading.trailing.bottom.equalToSuperview()
+            $0.bottom.equalTo(addNewFieldButton.snp.top).inset(-10)
         }
         
-        contentView.snp.makeConstraints {
-            $0.edges.width.equalTo(scrollView)
-            $0.height.equalToSuperview().priority(.low)
-        }
-        
-        containerView.snp.makeConstraints {
-            $0.centerY.equalToSuperview()
-            $0.leading.trailing.equalTo(view.safeAreaLayoutGuide).inset(30)
-            $0.bottom.equalToSuperview().inset(100)
-        }
-        
-        newQuestionTextField.snp.makeConstraints {
-            $0.height.equalTo(35)
+        addNewFieldButton.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.height.equalTo(50)
+            $0.width.equalTo(150)
+            $0.bottom.equalToSuperview().inset(50)
         }
     }
     
@@ -160,76 +118,74 @@ extension AddQuestionVC {
     }
     
     private func prepareNewQuestion() -> Question? {
-        guard let question = newQuestionTextField.text,
-              let firstOption = firstAnswerTextField.text,
-              let secondOption = secondAnswerTextField.text,
-              let thirdOption = thirdAnswerTextField.text,
-              let fourthOption = fourthAnswerTextField.text else {
-                  ifNotAllFieldsIsFilledAlert()
-                  return nil
-              }
-        
-        let selectedIndex = rightAnswerControl.selectedSegmentIndex
+        print(textFieldsTexts)
+        let question = textFieldsTexts[0]
+        let firstOption = textFieldsTexts[1]
+        let secondOption = textFieldsTexts[2]
+        let thirdOption = textFieldsTexts[3]
+        let fourthOption = textFieldsTexts[4]
         
         var correctAnswer: String
-        
-        if selectedIndex == 0 {
+
+        if selectedSegmentIndex == 0 {
             correctAnswer = firstOption
-        } else if selectedIndex == 1 {
+        } else if selectedSegmentIndex == 1 {
             correctAnswer = secondOption
-        } else if selectedIndex == 2 {
+        } else if selectedSegmentIndex == 2 {
             correctAnswer = thirdOption
-        } else if selectedIndex == 3 {
+        } else if selectedSegmentIndex == 3 {
             correctAnswer = fourthOption
         } else {
             correctAnswer = ""
         }
-        
+
         guard correctAnswer != "" else {
             ifNotAllFieldsIsFilledAlert()
             return nil
         }
         
-        let newQuestion = Question(
-            question: question,
-            answers: [
-                firstOption,
-                secondOption,
-                thirdOption,
-                fourthOption
-            ],
-            correctAnswer: correctAnswer
-        )
+        let newQuestion = userQuestionsBuilder
+            .addQuestion(question)
+            .addFirstOption(firstOption)
+            .addSecondOption(secondOption)
+            .addThirdOption(thirdOption)
+            .addFourthOption(fourthOption)
+            .addCorrectAnswer(correctAnswer)
+            .build()
         
         return newQuestion
     }
     
-    private func setupKeyboardObservers() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillShow),
-            name: UIResponder.keyboardWillShowNotification, object: nil
-        )
-
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillHide),
-            name: UIResponder.keyboardWillHideNotification, object: nil
-        )
-    }
-    
-    private func removeKeyboardObservers() {
-        NotificationCenter.default.removeObserver(
-            self,
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
+    private func configureCellType(indexPath: IndexPath) -> UITableViewCell {
+        let type = NewQuestionCellType(rawValue: indexPath.section)
+        let title = titles[indexPath.section][indexPath.row]
         
-        NotificationCenter.default.removeObserver(
-            self,
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil
-        )
+        switch type {
+        case .textFieldType:
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: UserQuestionCell.reuseIdentifier,
+                                                           for: indexPath) as? UserQuestionCell else {
+                return UITableViewCell()
+            }
+            
+            cell.configureCell(text: title)
+            cell.cellTextField.delegate = self
+            
+            return cell
+        case .segmentedControlType:
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: UserQuestionSegmentedCell.reuseIdentifier,
+                                                           for: indexPath) as? UserQuestionSegmentedCell else {
+                return UITableViewCell()
+            }
+            
+            cell.configureCell(text: title)
+            cell.onIndexSelected = { [weak self] selectedNumber in
+                self?.selectedSegmentIndex = selectedNumber
+            }
+            
+            return cell
+        case .none:
+            return UITableViewCell()
+        }
     }
     
 }
@@ -241,17 +197,79 @@ extension AddQuestionVC {
     @objc private func saveAction() {
         guard let newQuestion = prepareNewQuestion() else { return }
         
-        let userQuestionsCaretaker = UserQuestionsCaretaker()
-        userQuestionsCaretaker.saveQuestion(newQuestion)
+        userQuestionsBuilder.saveQuestion(newQuestion)
         navigationController?.popViewController(animated: true)
     }
     
-    @objc private func keyboardWillShow(sender: NSNotification) {
-         self.view.frame.origin.y = -150
+    @objc private func addNewFieldAction() {
+        if !isTextFieldIsEmpty {
+            guard numberOfSections != 2 else { return }
+            guard numberOfRows != 5 else {
+                numberOfSections += 1
+                numberOfRows += 1
+                tableView.reloadData()
+                addNewFieldButton.isHidden = true
+                return
+            }
+            if numberOfSections == 1 {
+                numberOfRows += 1
+                tableView.reloadData()
+            }
+        }
+        isTextFieldIsEmpty = true
     }
+    
+}
 
-    @objc private func keyboardWillHide(sender: NSNotification) {
-         self.view.frame.origin.y = 0
+// MARK: - UITableViewDataSource
+
+extension AddQuestionVC: UITableViewDataSource {
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        numberOfSections
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if numberOfRows == 6 {
+            let type = NewQuestionCellType(rawValue: section)
+            switch type {
+            case .textFieldType:
+                return 5
+            case .segmentedControlType:
+                return 1
+            case .none:
+                return 0
+            }
+        } else {
+            return numberOfRows
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        configureCellType(indexPath: indexPath)
+    }
+    
+}
+
+// MARK: - UITableViewDelegate
+
+extension AddQuestionVC: UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        80
+    }
+    
+}
+
+extension AddQuestionVC: UITextFieldDelegate {
+    
+    func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
+        guard let text = textField.text,
+              !text.isEmpty,
+              !textFieldsTexts.contains(text) else { return }
+        isTextFieldIsEmpty = false
+        textField.isUserInteractionEnabled = false
+        textFieldsTexts.append(text)
     }
     
 }
