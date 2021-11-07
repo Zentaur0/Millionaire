@@ -14,7 +14,7 @@ final class GameSession {
     // MARK: - Properties
     
     weak var delegate: GameDelegate?
-    var rightAnswersCount = 0
+    var rightAnswersCount = Observable<Int>(0)
     var tipsLeft = 0
     var moneyWon = 0
     
@@ -24,7 +24,7 @@ final class GameSession {
 
 extension GameSession: GameDelegate {
     
-    func saveData(_ rightCount: Int, _ moneyWon: Int, _ tipsLeft: Int) {
+    func saveData(_ rightCount: Observable<Int>, _ moneyWon: Int, _ tipsLeft: Int) {
         self.rightAnswersCount = rightCount
         self.moneyWon = moneyWon
         self.tipsLeft = tipsLeft

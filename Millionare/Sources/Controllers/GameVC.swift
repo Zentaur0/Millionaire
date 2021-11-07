@@ -8,7 +8,7 @@
 import UIKit
 
 protocol GameDelegate: AnyObject {
-    func saveData(_ rightCount: Int, _ moneyWon: Int, _ tipsLeft: Int)
+    func saveData(_ rightCount: Observable<Int>, _ moneyWon: Int, _ tipsLeft: Int)
 }
 
 // MARK: - GameVC
@@ -23,11 +23,24 @@ final class GameVC: UIViewController {
     private var rightAnswersCount = 0
     private var money = 0
     private var tipsUsed = 0
+    private let countingLabel = UILabel()
     private let questionLabel = UILabel()
     private let resultLabel = UILabel()
     private let rightAnswersLabel = UILabel()
     private let tipsStackView = UIStackView()
-    private let questions: [Question] = QuestionsStorage.questions.shuffled()
+    private let questions: [Question]
+    
+    // MARK: - Init
+    
+    init(questions: [Question]) {
+        self.questions = questions
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    @available (*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - Life Cycle
     
@@ -47,9 +60,15 @@ extension GameVC: ViewControllerMethods {
     func setupVC() {
         gameSession?.delegate = self
         
+        
         navigationController?.navigationBar.isHidden = false
-        title = "Game"
+        title = "Игра"
         view.backgroundColor = .white
+        
+        view.addSubview(countingLabel)
+        countingLabel.textAlignment = .center
+        countingLabel.textColor = .black
+        countingLabel.font = .systemFont(ofSize: 17, weight: .semibold)
         
         view.addSubview(questionLabel)
         questionLabel.numberOfLines = 0
@@ -67,9 +86,14 @@ extension GameVC: ViewControllerMethods {
         resultLabel.textAlignment = .center
         
         setupTipsContainer()
+        setupObservable()
     }
     
     func setupConstraints() {
+        countingLabel.snp.makeConstraints {
+            $0.leading.trailing.top.equalTo(view.safeAreaLayoutGuide).inset(20)
+        }
+        
         questionLabel.snp.makeConstraints {
             $0.leading.trailing.top.equalTo(view.safeAreaLayoutGuide).inset(70)
         }
@@ -204,7 +228,7 @@ extension GameVC {
             title: "OK",
             style: .cancel) { [weak self] _ in
                 self?.saveData(
-                    self?.rightAnswersCount ?? 0,
+                    Observable<Int>(self?.rightAnswersCount ?? 0),
                     self?.money ?? 0,
                     self?.tipsUsed ?? 0
                 )
@@ -214,6 +238,13 @@ extension GameVC {
             }
         alertController.addAction(action)
         present(alertController, animated: true)
+    }
+    
+    private func setupObservable() {
+        gameSession?.rightAnswersCount.addObserver(self, options: [.new, .initial]) { [weak self] questionsCount, _ in
+            let questions = QuestionsStorage.questions.count + UserQuestionBuilder().loadQuestion().count
+            self?.countingLabel.text = "ANSWERS: \(questionsCount)/\(questions)"
+        }
     }
     
 }
@@ -227,6 +258,7 @@ extension GameVC {
             button.backgroundColor = .systemGreen
             setupResultLabel(isRight: true)
             rightAnswersCount += 1
+            gameSession?.rightAnswersCount.value = rightAnswersCount
         } else {
             button.backgroundColor = .systemRed
             setupResultLabel(isRight: false)
@@ -251,9 +283,9 @@ extension GameVC {
     
     @objc private func takeTipAction(_ button: UIButton) {
         switch button.titleLabel?.text {
-        case "Call a friend":
+        case "Звонок другу":
             createRandomTipAlert(button: button)
-        case "Ask Hall":
+        case "Помощь зала":
             createRandomTipAlert(button: button)
         case "50/50":
             activate50to50()
@@ -304,7 +336,7 @@ extension GameVC {
 
 extension GameVC: GameDelegate {
     
-    func saveData(_ rightCount: Int, _ moneyWon: Int, _ tipsLeft: Int) {
+    func saveData(_ rightCount: Observable<Int>, _ moneyWon: Int, _ tipsLeft: Int) {
         gameSession?.saveData(rightCount, moneyWon, tipsLeft)
     }
     

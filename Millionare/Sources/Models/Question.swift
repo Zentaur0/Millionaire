@@ -6,12 +6,12 @@
 //
 
 enum Tip: String {
-    case callFriend = "Call a friend"
-    case hallHelp = "Ask Hall"
+    case callFriend = "Звонок другу"
+    case hallHelp = "Помощь зала"
     case tip50to50 = "50/50"
 }
 
-struct Question {
+struct Question: Codable {
     let question: String
     let answers: [String]
     let correctAnswer: String

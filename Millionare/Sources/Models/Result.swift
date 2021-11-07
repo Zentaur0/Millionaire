@@ -13,7 +13,8 @@ struct Result: Codable, Equatable {
     let tipsUsed: Int
     
     var winProcentage: Double {
-        100 * Double(rightAnswers) / Double(QuestionsStorage.questions.count)
+        let questionsCount = QuestionsStorage.questions.count + UserQuestionBuilder().loadQuestion().count
+        return 100 * Double(rightAnswers) / Double(questionsCount)
     }
     
     var date: Date {
